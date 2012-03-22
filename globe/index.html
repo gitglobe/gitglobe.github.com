@@ -162,18 +162,35 @@
         y.addEventListener('mouseover', settime(globe,i), false);
       }
 
-      var xhr;
       TWEEN.start();
 
 		var geocoder = new google.maps.Geocoder();
-		geocoder.geocode({'address': "Los Angeles"}, function(results, status) {
-			if (status == google.maps.GeocoderStatus.OK) {
-				globe.addData([results[0].geometry.location.lat(), results[0].geometry.location.lng(), 0.5], {format: "magnitude", name: "test", animated: true});
-				globe.createPoints();
-				settime(globe,0)();
-				globe.animate();
+
+		var xhr = new XMLHttpRequest();
+		var arr = [];
+		xhr.open('GET', 'http://localhost:7920/cgi-bin/proxy', true);
+		xhr.onreadystatechange = function(e) {
+			if (xhr.readyState === 4) {
+				if (xhr.status === 200) {
+					var data = JSON.parse(xhr.responseText);
+					for (var i = 0; i < data.length; ++i) {
+						if (data[i]["actor_attributes"] && data[i]["actor_attributes"]["location"]) {
+							geocoder.geocode({'address': data[i]["actor_attributes"]["location"]}, function(results, status) {
+								if (status == google.maps.GeocoderStatus.OK) {
+									arr.push(results[0].geometry.location.lat(), results[0].geometry.location.lng(), 0.5);
+									globe.addData(arr, {format: "magnitude"});
+									globe.createPoints();
+								}
+							});
+						}
+					}
+				}
 			}
-		});
+		};
+		xhr.send(null);
+
+		globe.animate();
+
 	}
 
   </script>
