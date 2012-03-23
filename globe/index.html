@@ -123,7 +123,10 @@
       var incomingData = null;
 
       var processNextItem = function() {
-        if (incomingData.length == 0) return;
+        if (incomingData.length == 0) {
+           fetchUpdate();
+           return;
+        }
         var item = incomingData.pop();
         geocoder.geocode({'address': item["actor_attributes"]["location"]}, function(results, status) {
           if (status == google.maps.GeocoderStatus.OK) {
