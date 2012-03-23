@@ -118,31 +118,34 @@
 
       var container = document.getElementById('container');
       var globe = new DAT.Globe(container);
-
       var geocoder = new google.maps.Geocoder();
+      var points = [];
 
-      var xhr = new XMLHttpRequest();
-      var arr = [];
-      xhr.open('GET', 'http://localhost:7920/cgi-bin/proxy', true);
-      xhr.onreadystatechange = function(e) {
-        if (xhr.readyState === 4) {
-          if (xhr.status === 200) {
-            var data = JSON.parse(xhr.responseText);
-            for (var i = 0; i < data.length; ++i) {
-              if (data[i]["actor_attributes"] && data[i]["actor_attributes"]["location"]) {
-                geocoder.geocode({'address': data[i]["actor_attributes"]["location"]}, function(results, status) {
-                  if (status == google.maps.GeocoderStatus.OK) {
-                    arr.push(results[0].geometry.location.lat(), results[0].geometry.location.lng(), 0.5);
-                    globe.addData(arr, {format: "magnitude"});
-                    globe.createPoints();
-                  }
-                });
+      var fetchUpdate = function () {
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', 'http://localhost:7920/cgi-bin/proxy', true);
+        xhr.onreadystatechange = function(e) {
+          if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
+              var data = JSON.parse(xhr.responseText);
+              for (var i = 0; i < data.length; ++i) {
+                if (data[i]["actor_attributes"] && data[i]["actor_attributes"]["location"]) {
+                  geocoder.geocode({'address': data[i]["actor_attributes"]["location"]}, function(results, status) {
+                    if (status == google.maps.GeocoderStatus.OK) {
+                      points.push(results[0].geometry.location.lat(), results[0].geometry.location.lng(), 0.5)
+                      globe.addData(points, {format: "magnitude"});
+                      globe.createPoints();
+                    }
+                  });
+                }
               }
             }
           }
         }
+        xhr.send(null);
       };
-      xhr.send(null);
+
+      fetchUpdate();
       globe.animate();
     }
 
