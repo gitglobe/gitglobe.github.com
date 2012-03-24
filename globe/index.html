@@ -163,8 +163,8 @@
         });
       }
 
-      var processUpdate = function() {
-        incomingData = incomingData.filter(function(item) {
+      var processUpdate = function(json) {
+        incomingData = json.filter(function(item) {
           return item["actor_attributes"] && item["actor_attributes"]["location"] && Date.parse(item["created_at"]) > latestTimestamp;
         });
         processNextItem();
@@ -172,6 +172,7 @@
 
       var fetchUpdate = function() {
         console.log("Fetching new data...");
+        /*
         var xhr = new XMLHttpRequest();
         xhr.open('GET', 'http://localhost:7920/cgi-bin/proxy', true);
         xhr.onreadystatechange = function(e) {
@@ -179,23 +180,18 @@
             if (xhr.status === 200) {
               incomingData = JSON.parse(xhr.responseText);
               processUpdate();
-              /*
-              for (var i = 0; i < data.length; ++i) {
-                if (data[i]["actor_attributes"] && data[i]["actor_attributes"]["location"]) {
-                  geocoder.geocode({'address': data[i]["actor_attributes"]["location"]}, function(results, status) {
-                    if (status == google.maps.GeocoderStatus.OK) {
-                      points.push(results[0].geometry.location.lat(), results[0].geometry.location.lng(), 0.5)
-                      globe.addData(points, {format: "magnitude"});
-                      globe.createPoints();
-                    }
-                  });
-                }
-              }
-              */
             }
           }
         }
         xhr.send(null);
+        */
+        var jsonp = document.createElement('script');
+        jsonp.type = "text/javascript";
+        jsonp.src = "https://github.com/timeline.json?callback=processUpdate";
+        if (jsonp.src == document.body.lastChild.src) {
+          document.body.removeChild(document.body.lastChild);
+        }
+        document.body.appendChild(jsonp);
       };
 
       fetchUpdate();
