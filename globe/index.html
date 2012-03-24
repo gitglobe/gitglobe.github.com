@@ -148,6 +148,7 @@
         geocoder.geocode({'address': item["actor_attributes"]["location"]}, function(results, status) {
           if (status == google.maps.GeocoderStatus.OK) {
             ++count;
+            console.log("Adding activity from " + item["actor_attributes"]["location"]);
             var lat = Math.round(results[0].geometry.location.lat());
             var lng = Math.round(results[0].geometry.location.lng());
             var start = ((lat + 90) * 361 + (lng + 180)) * 3;
