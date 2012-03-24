@@ -119,8 +119,20 @@
       var container = document.getElementById('container');
       var globe = new DAT.Globe(container);
       var geocoder = new google.maps.Geocoder();
-      var points = [];
+      var points = new Array(361 * 181 * 3);
       var incomingData = null;
+
+      for (var lat = -90; lat <= 90; ++lat) {
+        for (var lng = -180; lng <= 180; ++lng) {
+          var start = ((lat + 90) * 361 + (lng + 180)) * 3;
+          points[start] = lat;
+          points[start+1] = lng;
+          points[start+2] = 0;
+        }
+      }
+
+      var count = 0;
+      var pts;
 
       var processNextItem = function() {
         if (incomingData.length == 0) {
@@ -130,10 +142,15 @@
         var item = incomingData.pop();
         geocoder.geocode({'address': item["actor_attributes"]["location"]}, function(results, status) {
           if (status == google.maps.GeocoderStatus.OK) {
-            points.push(results[0].geometry.location.lat(), results[0].geometry.location.lng(), 0.5);
-            globe.addData(points, {format: "magnitude"});
+            ++count;
+            var lat = Math.round(results[0].geometry.location.lat());
+            var lng = Math.round(results[0].geometry.location.lng());
+            var start = ((lat + 90) * 361 + (lng + 180)) * 3;
+            points[start + 2] += 0.01;
+            pts = points.filter(function (val, idx, arr) { return arr[idx - (idx % 3) + 2] != 0; });
+            globe.addData(pts, {format: "magnitude"});
             globe.createPoints();
-            setTimeout(processNextItem, 1000);
+            setTimeout(processNextItem, 200);
           } else {
             processNextItem();
           }
