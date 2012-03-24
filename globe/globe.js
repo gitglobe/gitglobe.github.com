@@ -234,6 +234,7 @@ DAT.Globe = function(container, colorFn) {
 
   function createPoints() {
     if (this._baseGeometry !== undefined) {
+      if (this.points) scene.removeObject(this.points);
       if (this.is_animated === false) {
         this.points = new THREE.Mesh(this._baseGeometry, new THREE.MeshBasicMaterial({
               color: 0xffffff,

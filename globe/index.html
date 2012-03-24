@@ -130,7 +130,7 @@
         var item = incomingData.pop();
         geocoder.geocode({'address': item["actor_attributes"]["location"]}, function(results, status) {
           if (status == google.maps.GeocoderStatus.OK) {
-            points = [results[0].geometry.location.lat(), results[0].geometry.location.lng(), 0.5];
+            points.push(results[0].geometry.location.lat(), results[0].geometry.location.lng(), 0.5);
             globe.addData(points, {format: "magnitude"});
             globe.createPoints();
             setTimeout(processNextItem, 1000);
