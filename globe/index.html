@@ -131,15 +131,20 @@
         }
       }
 
+      var latestTimestamp = 0;
       var count = 0;
       var pts;
 
       var processNextItem = function() {
         if (incomingData.length == 0) {
-           fetchUpdate();
+           setTimeout(fetchUpdate, 1000);
            return;
         }
         var item = incomingData.pop();
+        var timestamp = Date.parse(item['created_at']);
+        if (timestamp > latestTimestamp) {
+          latestTimestamp = timestamp;
+        }
         geocoder.geocode({'address': item["actor_attributes"]["location"]}, function(results, status) {
           if (status == google.maps.GeocoderStatus.OK) {
             ++count;
@@ -150,7 +155,7 @@
             pts = points.filter(function (val, idx, arr) { return arr[idx - (idx % 3) + 2] != 0; });
             globe.addData(pts, {format: "magnitude"});
             globe.createPoints();
-            setTimeout(processNextItem, 200);
+            setTimeout(processNextItem, 1000);
           } else {
             processNextItem();
           }
@@ -159,12 +164,13 @@
 
       var processUpdate = function() {
         incomingData = incomingData.filter(function(item) {
-          return item["actor_attributes"] && item["actor_attributes"]["location"];
+          return item["actor_attributes"] && item["actor_attributes"]["location"] && Date.parse(item["created_at"]) > latestTimestamp;
         });
         processNextItem();
       }
 
       var fetchUpdate = function() {
+        console.log("Fetching new data...");
         var xhr = new XMLHttpRequest();
         xhr.open('GET', 'http://localhost:7920/cgi-bin/proxy', true);
         xhr.onreadystatechange = function(e) {
