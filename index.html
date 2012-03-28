@@ -172,19 +172,6 @@
 
       var fetchUpdate = function() {
         console.log("Fetching new data...");
-        /*
-        var xhr = new XMLHttpRequest();
-        xhr.open('GET', 'http://localhost:7920/cgi-bin/proxy', true);
-        xhr.onreadystatechange = function(e) {
-          if (xhr.readyState === 4) {
-            if (xhr.status === 200) {
-              incomingData = JSON.parse(xhr.responseText);
-              processUpdate();
-            }
-          }
-        }
-        xhr.send(null);
-        */
         var jsonp = document.createElement('script');
         jsonp.type = "text/javascript";
         jsonp.src = "https://github.com/timeline.json?callback=processUpdate";
