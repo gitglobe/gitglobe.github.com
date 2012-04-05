@@ -134,10 +134,11 @@
       var latestTimestamp = 0;
       var count = 0;
       var pts;
+      var readyToFetch = true;
 
       var processNextItem = function() {
         if (incomingData.length == 0) {
-           setTimeout(fetchUpdate, 1000);
+           readyToFetch = true;
            return;
         }
         var item = incomingData.pop();
@@ -163,17 +164,16 @@
         });
       }
 
-      var fetchSuccess = false;
       var processUpdate = function(json) {
         incomingData = json.filter(function(item) {
           return item["actor_attributes"] && item["actor_attributes"]["location"] && Date.parse(item["created_at"]) > latestTimestamp;
         });
-        fetchSuccess = true;
+        readyToFetch = false;
         processNextItem();
       }
 
       var fetchUpdate = function() {
-        fetchSuccess = false;
+        if (!readyToFetch) return;
         console.log("Fetching new data...");
         var jsonp = document.createElement('script');
         jsonp.type = "text/javascript";
@@ -182,10 +182,9 @@
           document.body.removeChild(document.body.lastChild);
         }
         document.body.appendChild(jsonp);
-        setTimeout(function() { if (!fetchSuccess) fetchUpdate(); }, 5000);
       };
 
-      fetchUpdate();
+      setInterval(fetchUpdate, 1000);
       globe.animate();
     }
 
