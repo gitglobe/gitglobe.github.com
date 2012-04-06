@@ -148,15 +148,27 @@
         }
         geocoder.geocode({'address': item["actor_attributes"]["location"]}, function(results, status) {
           if (status == google.maps.GeocoderStatus.OK) {
-            ++count;
-            console.log("Adding activity from " + item["actor_attributes"]["location"]);
-            var lat = Math.round(results[0].geometry.location.lat());
-            var lng = Math.round(results[0].geometry.location.lng());
-            var start = ((lat + 90) * 361 + (lng + 180)) * 3;
-            points[start + 2] += 0.01;
-            pts = points.filter(function (val, idx, arr) { return arr[idx - (idx % 3) + 2] != 0; });
-            globe.addData(pts, {format: "magnitude"});
-            globe.createPoints();
+            var ne = results[0].geometry.viewport.getNorthEast();
+            var sw = results[0].geometry.viewport.getSouthWest();
+            var dlat = ne.lat() - sw.lat();
+            var dlng = ne.lng() - sw.lng();
+            if (dlng < 0) {
+              dlng += 360;
+            }
+            dlng *= Math.cos(results[0].geometry.location.lat() * Math.PI / 180);
+            if (dlat > 2 || dlng > 2) {
+              console.log("Filtering activity from " + item["actor_attributes"]["location"]);
+            } else {
+              ++count;
+              console.log("Adding activity from " + item["actor_attributes"]["location"]);
+              var lat = Math.round(results[0].geometry.location.lat());
+              var lng = Math.round(results[0].geometry.location.lng());
+              var start = ((lat + 90) * 361 + (lng + 180)) * 3;
+              points[start + 2] += 0.01;
+              pts = points.filter(function (val, idx, arr) { return arr[idx - (idx % 3) + 2] != 0; });
+              globe.addData(pts, {format: "magnitude"});
+              globe.createPoints();
+            }
             setTimeout(processNextItem, 1000);
           } else {
             processNextItem();
