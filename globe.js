@@ -167,6 +167,7 @@ DAT.Globe = function(container, colorFn) {
     container.addEventListener('mousedown', onMouseDown, false);
 
     container.addEventListener('mousewheel', onMouseWheel, false);
+    container.addEventListener('DOMMouseScroll', onMouseWheel, false);
 
     document.addEventListener('keydown', onDocumentKeyDown, false);
 
@@ -330,7 +331,11 @@ DAT.Globe = function(container, colorFn) {
   function onMouseWheel(event) {
     event.preventDefault();
     if (overRenderer) {
-      zoom(event.wheelDeltaY * 0.3);
+      if (event.wheelDeltaY) {
+        zoom(event.wheelDeltaY * 0.3);
+      } else {
+        zoom(event.detail * -36);
+      }
     }
     return false;
   }
