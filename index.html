@@ -119,12 +119,12 @@
       var container = document.getElementById('container');
       var globe = new DAT.Globe(container);
       var geocoder = new google.maps.Geocoder();
-      var points = new Array(361 * 181 * 3);
+      var points = new Array(360 * 181 * 3);
       var incomingData = null;
 
       for (var lat = -90; lat <= 90; ++lat) {
-        for (var lng = -180; lng <= 180; ++lng) {
-          var start = ((lat + 90) * 361 + (lng + 180)) * 3;
+        for (var lng = -180; lng < 180; ++lng) {
+          var start = ((lat + 90) * 360 + (lng + 180)) * 3;
           points[start] = lat;
           points[start+1] = lng;
           points[start+2] = 0;
@@ -163,7 +163,10 @@
               console.log("Adding activity from " + item["actor_attributes"]["location"]);
               var lat = Math.round(results[0].geometry.location.lat());
               var lng = Math.round(results[0].geometry.location.lng());
-              var start = ((lat + 90) * 361 + (lng + 180)) * 3;
+              if (lng == 180) {
+                lng = -180;
+              }
+              var start = ((lat + 90) * 360 + (lng + 180)) * 3;
               points[start + 2] += 0.01;
               pts = points.filter(function (val, idx, arr) { return arr[idx - (idx % 3) + 2] != 0; });
               globe.addData(pts, {format: "magnitude"});
