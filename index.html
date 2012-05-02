@@ -163,7 +163,7 @@
               console.log("Adding activity from " + item["actor_attributes"]["location"]);
               var lat = Math.round(results[0].geometry.location.lat());
               var lng = Math.round(results[0].geometry.location.lng());
-              if (lng == 180) {
+              if (lng == 180 || lat == 90 || lat == -90) {
                 lng = -180;
               }
               var start = ((lat + 90) * 360 + (lng + 180)) * 3;
